@@ -7,11 +7,10 @@
 
 	1.LSM_9DS1型クラスを作成
 	2.Initialize(16,2000,16)でセンサの出力スケールつき初期化
-	3.Wire.setClock(400000L);でI2Cを高速モードにするとよい
-	4.availableFIFO()でFIFOバッファにあるデータ数を確認
-	5.その数だけReadAccFIFO(&x, &y, &z)、ReadGyrFIFO(&x, &y, &z)で加速度ジャイロ読み出し
-	6.ReadMag(&x, &y, &z)で磁力センサ読み出し
-	7.4に戻る
+	3.availableFIFO()でFIFOバッファにあるデータ数を確認
+	4.その数だけReadAccFIFO(&x, &y, &z)、ReadGyrFIFO(&x, &y, &z)で加速度ジャイロ読み出し
+	5.ReadMag(&x, &y, &z)で磁力センサ読み出し
+	6.3に戻る
 
 	110~113行目ACC_SAMPLING_RATE、GYR_SAMPLING_RAT、MAG_SAMPLING_RATEでサンプリングレートを変更できる（デフォルトは238Hz,238Hz,80Hz）
 	データシートに書いてないけどCTRL_REG1_Mの375行目をいじるとサブモードで磁力センサレートを1000Hzまであげられる
@@ -20,7 +19,7 @@
 
 */
 
-#include "I2Chandler.h"
+#include "I2CHandler.h"
 
 #define LSM9DS1_M 0x1E
 #define LSM9DS1_AG 0x6B

@@ -15,7 +15,7 @@
 	このセンサの更新速度にデバイス側で合わせて読みだせばSTATUS_REGのチェックが不要になる
 */
 
-#include <Wire.h>
+#include "I2CHandler.h"
 
 #define LPS331AP_ADDR0 0b1011100 //SA0=L(GND)
 #define LPS331AP_ADDR1 0b1011101 //SA0=H(VDD)
@@ -65,7 +65,10 @@ public:
 	bool ReadTmp(float *tmp);
 };
 
-void WriteByte(uint8_t add, uint8_t reg, uint8_t data)
+/*
+#include <Wire.h>
+
+void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
 {
 	Wire.beginTransmission(add);
 	Wire.write(reg);
@@ -73,7 +76,7 @@ void WriteByte(uint8_t add, uint8_t reg, uint8_t data)
 	Wire.endTransmission();
 }
 
-uint8_t ReadByte(uint8_t add, uint8_t reg)
+uint8_t I2cReadByte(uint8_t add, uint8_t reg)
 {
 	Wire.beginTransmission(add);
 	Wire.write(reg);
@@ -82,7 +85,7 @@ uint8_t ReadByte(uint8_t add, uint8_t reg)
 	uint8_t data = Wire.read();
 	return data;
 }
-void ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
+void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 {
 	byte retVal;
 	Wire.beginTransmission(add);
@@ -95,16 +98,18 @@ void ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 	}
 }
 
+*/
+
 void LPS_331AP::RegistersInit(){
 	uint8_t tempRegValue = 0x00;
 
 	//Reference pressure
-	WriteByte(LPS331AP_ADDR, REF_P_XL, tempRegValue);
-	WriteByte(LPS331AP_ADDR, REF_P_L, tempRegValue);
-	WriteByte(LPS331AP_ADDR, REF_P_H, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, REF_P_XL, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, REF_P_L, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, REF_P_H, tempRegValue);
 
 	//Power down before change config
-	WriteByte(LPS331AP_ADDR, CTRL_REG1, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, CTRL_REG1, tempRegValue);
 
 	//RES_CONF
 	//[RFU][AVGT2][AVGT1][AVGT0][AVGP3][AVGP2][AVGP1][AVGP0]
@@ -125,7 +130,7 @@ void LPS_331AP::RegistersInit(){
 	tempRegValue |= (0b1111 & 0xF);
 	if(ODR == 0b111)
 		tempRegValue = 0x6A;
-	WriteByte(LPS331AP_ADDR, RES_CONF, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, RES_CONF, tempRegValue);
 
 	//CTRL_REG1
 	//[PD][ODR2][ODR1][ODR0][DIFF_EN][DBDU][DELTA_EN][SIM]
@@ -139,7 +144,7 @@ void LPS_331AP::RegistersInit(){
 	tempRegValue |= (0b1 & 0x1) << 7;
 	tempRegValue |= (ODR & 0x7) << 4;
 	tempRegValue |= (0b0100 & 0xF);
-	WriteByte(LPS331AP_ADDR,CTRL_REG1, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR,CTRL_REG1, tempRegValue);
 
 	//CTRL_REG2
 	//[BOOT][RESERVED][RESERVED][RESERVED][RESERVED][SWRESET][AUTO_ZERO][ONE_SHOT]
@@ -148,7 +153,7 @@ void LPS_331AP::RegistersInit(){
 	//AUTO_ZERO - Autozero enable. Default value: 0
 	//ONE_SHOT -  One shot enable. Default value: 0
 	tempRegValue = 0;
-	WriteByte(LPS331AP_ADDR, CTRL_REG2, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, CTRL_REG2, tempRegValue);
 
 	
 	//CTRL_REG3
@@ -158,18 +163,18 @@ void LPS_331AP::RegistersInit(){
 	//THS_P_H
 	//To set about interrupt.
 	tempRegValue = 0;
-	WriteByte(LPS331AP_ADDR, CTRL_REG3, tempRegValue);
-	WriteByte(LPS331AP_ADDR, INTERRUPT_CFG, tempRegValue);
-	WriteByte(LPS331AP_ADDR, INT_SOURCE, tempRegValue);
-	WriteByte(LPS331AP_ADDR, THS_P_L, tempRegValue);
-	WriteByte(LPS331AP_ADDR, THS_P_H, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, CTRL_REG3, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, INTERRUPT_CFG, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, INT_SOURCE, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, THS_P_L, tempRegValue);
+	I2cWriteByte(LPS331AP_ADDR, THS_P_H, tempRegValue);
 
 	return;
 }
 
 bool LPS_331AP::Initialize(){
-	Wire.begin();
-	uint8_t Test = ReadByte(LPS331AP_ADDR, WHO_AM_I);
+	I2cInitialize();
+	uint8_t Test = I2cReadByte(LPS331AP_ADDR, WHO_AM_I);
 	if(Test != WHO_AM_I_DEFAULT){
 		Serial.println("CAUTION!!");
 		while (1)
@@ -189,10 +194,10 @@ bool LPS_331AP::ReadPrs(float *prs){
 	//T_OR - Temperature data overrun.
 	//P_DA - Pressure data available.
 	//T_DA - Temperature data available.
-	status = ReadByte(LPS331AP_ADDR, STATUS_REG);
+	status = I2cReadByte(LPS331AP_ADDR, STATUS_REG);
 	if((status & 0b10) > 0){
 		uint8_t prsTemp[3];
-		ReadBytes(LPS331AP_ADDR, PRESS_OUT_XL, prsTemp, 3);
+		I2cReadBytes(LPS331AP_ADDR, PRESS_OUT_XL, prsTemp, 3);
 		*prs = ((uint32_t)prsTemp[2] << 16 | (uint32_t)prsTemp[1] << 8 | (uint32_t)prsTemp[0]) / 4096.0;
 		return true;
 	}
@@ -202,10 +207,10 @@ bool LPS_331AP::ReadPrs(float *prs){
 
 bool LPS_331AP::ReadTmp(float *tmp){
 	uint8_t status;
-	status = ReadByte(LPS331AP_ADDR, STATUS_REG);
+	status = I2cReadByte(LPS331AP_ADDR, STATUS_REG);
 	if((status & 0b01) > 0){
 		uint8_t tmpTemp[2];
-		ReadBytes(LPS331AP_ADDR, TEMP_OUT_L, tmpTemp, 2);
+		I2cReadBytes(LPS331AP_ADDR, TEMP_OUT_L, tmpTemp, 2);
 		*tmp =  42.5 + ((uint16_t)tmpTemp[1] << 8 | (uint16_t)tmpTemp[0]) / 480.0;
 		return true;
 	}
