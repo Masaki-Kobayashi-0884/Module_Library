@@ -74,39 +74,4 @@ float vectorAbsolute(Vector3 v){
 	return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-void Serial_print(Quaternion q){
-	Serial.print(q.x,5);
-	Serial.print(' ');
-	Serial.print(q.y,5);
-	Serial.print(' ');
-	Serial.print(q.z,5);
-	Serial.print(' ');
-	Serial.print(q.w,5);
-}
-
-void Serial_println(Quaternion q){
-	Serial.print(q.x,5);
-	Serial.print(' ');
-	Serial.print(q.y,5);
-	Serial.print(' ');
-	Serial.print(q.z,5);
-	Serial.print(' ');
-	Serial.println(q.w,5);
-}
-
-void Serial_print(Vector3 v){
-	Serial.print(v.x,5);
-	Serial.print(' ');
-	Serial.print(v.y,5);
-	Serial.print(' ');
-	Serial.print(v.z,5);
-}
-
-void Serial_println(Vector3 v){
-	Serial.print(v.x,5);
-	Serial.print(' ');
-	Serial.print(v.y,5);
-	Serial.print(' ');
-	Serial.println(v.z,5);
-}
 #endif
