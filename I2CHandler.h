@@ -58,7 +58,8 @@ void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 
 void I2cInitialize(){
 	I2C i2c(p9, p10)
-	i2c.frequency(400*1000);
+	//I2C i2c(p29, p28)
+	i2c.frequency(400000);
 }
 
 void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
