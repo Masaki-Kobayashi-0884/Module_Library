@@ -52,19 +52,19 @@ void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 }
 #endif
 
-#ifdef MBED
+#ifdef MBED	//mbed用
 
 #include "mbed.h"
 
+I2C i2c(p9, p10);
+//I2C i2c(p29, p28)
+
 void I2cInitialize(){
-	I2C i2c(p9, p10);
-	//I2C i2c(p29, p28)
 	i2c.frequency(400000);
 }
 
 void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
 {
-	I2C i2c(p9, p10);
 	i2c.start();
 	i2c.write(add);
 	i2c.write(reg);
@@ -74,7 +74,6 @@ void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
 
 uint8_t I2cReadByte(uint8_t add, uint8_t reg)
 {
-	I2C i2c(p9, p10);
 	char data = 0;
 
 	i2c.start();
@@ -91,7 +90,6 @@ uint8_t I2cReadByte(uint8_t add, uint8_t reg)
 
 void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 {
-	I2C i2c(p9, p10);
 	i2c.start();
     i2c.write(add);
     i2c.write(reg | 0x80);
