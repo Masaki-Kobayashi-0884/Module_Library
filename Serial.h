@@ -3,69 +3,79 @@
 
 /*
 
-シリアル通信用のライブラリ
+mbedのシリアル通信をArduinoに寄せるライブラリ
 
 */
-
+#define MBED
+/*
 #define ARDUINO
-//#define MBED
 
 #ifdef ARDUINO
 
 #include "Wire.h"
 
-void serialInitialize(int rate)
-{
-	Serial.begin(rate);
-}
-
-void serialEnd(){
-	Serial.end();
-}
-
-bool serialAvailable(){
-	if (Serial.available() > 0){
-	return true;
-	}
-	else{
-	return false;
-	}
-}
-
-char serialReedByte(){
-	char buff;
-	buff = Serial.reed();
-	return buff
-}
-
-char serialReedBytes(){
-	char buff[BUFF_MAX]={'\0'};
-	int counter = 0;
-	while (Serial.available()>0){
-
-        char data = Serial.read();
-        buff[counter] = data;
-
-        if (data == '\0'){
-            //buff[0]～buff[counter-1]までが文字列となってここでうけとれる
-            //シリアル送信側で終端文字\0が最後につけられることが前提
-            return buff;
-        }
-        else{
-            counter++;
-        }
-    }
-    return buff
-}
-
-void serialWriteByte(){
-
-
-}
-
-#ebdif
-
+#endif
+*/
 #ifdef MBED
+
+#include　"mbed.h"
+
+class Serial_{
+private:
+	Serial_();
+
+public:
+	void begin(int speed);
+	void end();
+	int available();
+	int read();
+	int peek();
+	int flush();
+	//long print(char data);
+	//long println(char data);
+	int write(int val);
+}
+
+Serial_::Serial_(){
+	Serial mserial(USBTX, USBRX);
+}
+
+void Serial_::begin(int speed){
+	mserial.beud(speed);
+}
+
+void Serial_::end(){
+
+}
+
+int Serial_::available(){
+
+}
+
+int Serial_::read(){
+
+}
+
+int Serial_::peek(){
+
+}
+
+int Serial_::flush(){
+
+}
+
+long Serial_::print(char data){
+	mserial.printf(data;)
+}
+/*
+long Serial_::println(char data){
+
+}
+*/
+int Serial_::write(int val){
+
+}
+Serial_ Serial;
 
 #endif
 
