@@ -4,6 +4,7 @@
 
 	STMicroelectronics社製LPS331AP用のI2C版ライブラリです.
 	使用する際はデバイスのSDAとSCLをセンサに接続してください.
+	内部プルアップではないので注意.
 
 	1.LPS_331AP型クラスを作成
 	2.Initialize()で初期化
@@ -14,7 +15,6 @@
 	49行目ODRでサンプリングレートを変更できる（デフォルトは25Hz,25Hz)
 	このセンサの更新速度にデバイス側で合わせて読みだせばSTATUS_REGのチェックが不要になる
 
-	※なんか気温のキャストが正しくないっぽいので修正してくれ
 */
 
 #include "I2CHandler.h"
@@ -202,7 +202,7 @@ bool LPS_331AP::ReadPrs(float *prs){
 		prsTempXL = I2cReadByte(LPS331AP_ADDR, LPS331AP_PRESS_OUT_XL);
 		prsTempL = I2cReadByte(LPS331AP_ADDR, LPS331AP_PRESS_OUT_L);
 		prsTempH = I2cReadByte(LPS331AP_ADDR, LPS331AP_PRESS_OUT_H);
-		*prs = (uint32_t)(prsTempH << 16 | prsTempL << 8 | prsTempXL) / 4096.0f;
+		*prs = ((uint32_t)prsTempH << 16 | (uint16_t)prsTempL << 8 | prsTempXL) / 4096.0f;
 		return true;
 	}
 	else return false;
