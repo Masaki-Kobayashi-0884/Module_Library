@@ -12,13 +12,18 @@
 //#define ARDUINO	//ここにマイコンを追記していく
 #define MBED
 
-#ifdef ARDUINO						//arduinoのi2c用
+#ifdef ARDUINO	//arduinoのi2c用
 
 #include "Wire.h"
 
+bool initialized = false;
+
 void I2cInitialize(){
-	Wire.begin();
-	Wire.setClock( 400000L );
+	if(!initialized){
+		Wire.begin();
+		Wire.setClock( 400000L );
+		initialized = true;
+	}
 }
 
 void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
