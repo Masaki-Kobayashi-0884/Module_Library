@@ -16,9 +16,19 @@
 
 #include "Wire.h"
 
-bool initialized = false;
+class I2c
+{
+public:
+	I2c();
+	~I2c();
+	void WriteByte(uint8_t add, uint8_t reg, uint8_t data);
+	uint8_t ReadByte(uint8_t add, uint8_t reg);
+	void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count);
+private:
+	bool initialized = false
+};
 
-void I2cInitialize(){
+I2c::I2c(){
 	if(!initialized){
 		Wire.begin();
 		Wire.setClock( 400000L );
@@ -26,7 +36,10 @@ void I2cInitialize(){
 	}
 }
 
-void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
+I2c::~I2c(){
+}
+
+void I2c::WriteByte(uint8_t add, uint8_t reg, uint8_t data)
 {
 	Wire.beginTransmission(add);
 	Wire.write(reg);
@@ -34,7 +47,7 @@ void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
 	Wire.endTransmission();
 }
 
-uint8_t I2cReadByte(uint8_t add, uint8_t reg)
+uint8_t I2c::ReadByte(uint8_t add, uint8_t reg)
 {
 	Wire.beginTransmission(add);
 	Wire.write(reg);
@@ -44,7 +57,7 @@ uint8_t I2cReadByte(uint8_t add, uint8_t reg)
 	return data;
 }
 
-void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
+void I2c::ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 {
 	Wire.beginTransmission(add);
 	Wire.write(reg);
@@ -61,52 +74,58 @@ void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 
 #include "mbed.h"
 
-I2C i2c(p9, p10);
-//I2C i2c(p29, p28)
+class I2c
+{
+public:
+	I2c(PinName sda, PinName scl);
+	~I2c();
+	void WriteByte(uint8_t add, uint8_t reg, uint8_t data);
+	uint8_t ReadByte(uint8_t add, uint8_t reg);
+	void ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count);
+private:
+	I2C _i2c;
+};
 
-void I2cInitialize(){
-	i2c.frequency(400000);
+I2c::I2c(PinName sda, PinName scl) : _i2c(sda, scl)
+{
+	_i2c.frequency(400 * 1000);
 }
 
-void I2cWriteByte(uint8_t add, uint8_t reg, uint8_t data)
-{
-	i2c.start();
-	i2c.write(add);
-	i2c.write(reg);
-	i2c.write(data);
-	i2c.stop();	
+I2c::~I2c(){
 }
 
-uint8_t I2cReadByte(uint8_t add, uint8_t reg)
+void I2c::WriteByte(uint8_t add, uint8_t reg, uint8_t data)
 {
-	char data = 0;
-
-	i2c.start();
-    i2c.write(add);
-    i2c.write(reg);
-    
-    i2c.start();
-    i2c.write(add | 1);
-    data = i2c.read(0);
-    
-    i2c.stop();
-	return data;
+	add = add << 1;
+	char data_write[2];
+    data_write[0] = reg;
+    data_write[1] = data;
+    _i2c.write(add, data_write, 2, 0);
 }
 
-void I2cReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
+uint8_t I2c::ReadByte(uint8_t add, uint8_t reg)
 {
-	i2c.start();
-    i2c.write(add);
-    i2c.write(reg | 0x80);
-    
-    i2c.start();
-    i2c.write(add | 1);
+	add = add << 1;
+	char data[1];
+    char data_write[1];
+    data_write[0] = reg;
+    _i2c.write(add, data_write, 1, 1);
+    _i2c.read(add, data, 1, 0);
+    return data[0];
+}
 
-    for(int i = 0; i < count; i++) {
-        data[i] = i2c.read((i == count - 1) ? 0 : 1);
+void I2c::ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
+{
+    add = add << 1;
+    char buf[count];
+    char data_write[1];
+    data_write[0] = reg;
+    _i2c.write(add, data_write, 1, 1);
+    _i2c.read(add, buf, count, 0);
+    for (int ii = 0; ii < count; ii++)
+    {
+        data[ii] = buf[ii];
     }
-    
-    i2c.stop();
 }
 
 #endif
