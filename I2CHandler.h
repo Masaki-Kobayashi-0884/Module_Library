@@ -74,6 +74,9 @@ void I2c::ReadBytes(uint8_t add, uint8_t reg, uint8_t *data, uint8_t count)
 
 #include "mbed.h"
 
+#define I2C_DEFAULT_PIN_SDA p9
+#define I2C_DEFAULT_PIN_SCL p10
+
 class I2c
 {
 public:
@@ -86,7 +89,7 @@ private:
 	I2C _i2c;
 };
 
-I2c::I2c(PinName sda, PinName scl) : _i2c(sda, scl)
+I2c::I2c(PinName sda = I2C_DEFAULT_PIN_SDA, PinName scl = I2C_DEFAULT_PIN_SCL) : _i2c(sda, scl)
 {
 	_i2c.frequency(400 * 1000);
 }
